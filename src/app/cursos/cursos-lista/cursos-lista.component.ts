@@ -5,6 +5,7 @@ import {catchError, switchMap, take} from "rxjs/operators";
 import {BsModalRef, BsModalService} from "ngx-bootstrap/modal";
 import {ModalService} from "../../services/modal.service";
 import {Curso} from "../../model/curso";
+import {CrudUtilService} from "../../services/crud-util.service";
 
 @Component({
   selector: 'app-cursos-lista',
@@ -26,9 +27,11 @@ export class CursosListaComponent implements OnInit {
   @ViewChild("deleteModal")
   deleteModal: any;
 
-  constructor(private cursosService: CursosService,
+  constructor(
               private modal: BsModalService,
-              private modalService: ModalService
+              private modalService: ModalService,
+              private cursosService: CrudUtilService, /*IMPORTANT: SERVICO DE CRUD GENERICO*/
+              // private cursosService2: CursosService,
   ) {
   }
 
