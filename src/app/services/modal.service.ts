@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
 import {BsModalRef, BsModalService} from "ngx-bootstrap/modal";
 import {AlertModalComponent} from "../shared/alert-modal/alert-modal.component";
+import {ConfirmModalComponent} from "../shared/confirm-modal/confirm-modal.component";
 
 export enum AlertTypes {
   DANGER = "danger",
@@ -31,5 +32,21 @@ export class ModalService {
     if (dismissTimeout) {
       setTimeout(() => bsModalRef.hide(), dismissTimeout)
     }
+  }
+
+  showConfirm(title: any, body: any, okTxt?: any, cancelTxt?: any) {
+    const bsModalRef: BsModalRef = this.modal.show(ConfirmModalComponent);
+    bsModalRef.content.title = title;
+    bsModalRef.content.body = body;
+
+    if (okTxt) {
+      bsModalRef.content.okTxt = okTxt;
+    }
+
+    if(cancelTxt) {
+      bsModalRef.content.cancelTxt = cancelTxt;
+    }
+
+    return (<ConfirmModalComponent>bsModalRef.content).confirmResult;
   }
 }

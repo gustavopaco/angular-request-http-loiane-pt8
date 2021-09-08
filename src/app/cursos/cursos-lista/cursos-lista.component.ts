@@ -1,7 +1,7 @@
 import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {CursosService} from "../../services/cursos.service";
-import {Observable, of, Subject} from "rxjs";
-import {catchError} from "rxjs/operators";
+import {EMPTY, Observable, of, Subject} from "rxjs";
+import {catchError, switchMap, take} from "rxjs/operators";
 import {BsModalRef, BsModalService} from "ngx-bootstrap/modal";
 import {ModalService} from "../../services/modal.service";
 import {Curso} from "../../model/curso";
@@ -76,7 +76,22 @@ export class CursosListaComponent implements OnInit {
 
   onDelete(curso: any) {
     this.cursoSelecionado = curso;
-    this.deleteModalRef = this.modal.show(this.deleteModal, {class: "modal-sm"})
+    // this.deleteModalRef = this.modal.show(this.deleteModal, {class: "modal-sm"})
+
+    const result$ = this.modalService.showConfirm("Confirmacao", "Tem certeza que deseja remover esse curso?")
+    result$.asObservable()
+      .pipe(
+        take(1),
+        switchMap(result => result ? this.cursosService.remove(curso.id) : EMPTY)
+      )
+      .subscribe(
+        success => {
+          this.onRefresh();
+        },
+        error => {
+          this.modalService.showAlertDanger("Erro ao remover curso, tente novamente mais tarde");
+        }
+      )
   }
 
   onConfirmDelete() {
