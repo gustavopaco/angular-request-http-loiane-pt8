@@ -26,8 +26,8 @@
         <td>
           <div class="d-grid gap-2 d-md-block float-end">
             <div class="">
-              <button class="btn btn-outline-warning me-2" type="button">Atualizar</button>
-              <button class="btn btn-outline-danger" type="button">Remover</button>
+              <a class="btn btn-outline-warning me-2" type="button" [routerLink]="['editar/', curso.id]">Atualizar</a>
+              <a class="btn btn-outline-danger" type="button" (click)="onDelete(curso)">Remover</a>
             </div>
           </div>
         </td>
@@ -62,3 +62,11 @@
     </div>
   </ng-template>
 </div>
+
+<ng-template #deleteModal>
+  <div class="modal-body text-center">
+    <p>Tem certeza que deseja remover esse curso?</p>
+    <button type="button" class="btn btn-default" (click)="onConfirmDelete()">Yes</button>
+    <button type="button" class="btn btn-primary" (click)="onDeclineDelete()">No</button>
+  </div>
+</ng-template>

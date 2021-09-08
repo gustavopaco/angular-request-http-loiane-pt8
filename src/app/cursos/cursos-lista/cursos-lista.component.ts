@@ -1,9 +1,10 @@
-import {Component, OnInit, TemplateRef} from '@angular/core';
+import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {CursosService} from "../../services/cursos.service";
 import {Observable, of, Subject} from "rxjs";
 import {catchError} from "rxjs/operators";
 import {BsModalRef, BsModalService} from "ngx-bootstrap/modal";
 import {ModalService} from "../../services/modal.service";
+import {Curso} from "../../model/curso";
 
 @Component({
   selector: 'app-cursos-lista',
@@ -17,17 +18,26 @@ export class CursosListaComponent implements OnInit {
   cursos$: Observable<any>
   error$ = new Subject<boolean>();
   bsModalRef?: BsModalRef
+  deleteModalRef: BsModalRef;
+
+  cursoSelecionado: Curso;
+
+  /*Note: Recebendo um parametro do HTML*/
+  @ViewChild("deleteModal")
+  deleteModal: any;
 
   constructor(private cursosService: CursosService,
               private modal: BsModalService,
               private modalService: ModalService
-  ) { }
+  ) {
+  }
 
   ngOnInit(): void {
     // this.cursosService.list().subscribe(response => this.cursos = response);
     this.onRefresh()
   }
 
+  /*NOTE: Quando clica no botao atualizar ele recarrega a lista de Cursos*/
   onRefresh() {
     this.cursos$ = this.cursosService.list()
       .pipe(
@@ -62,5 +72,28 @@ export class CursosListaComponent implements OnInit {
 
   hideModal() {
     this.bsModalRef?.hide()
+  }
+
+  onDelete(curso: any) {
+    this.cursoSelecionado = curso;
+    this.deleteModalRef = this.modal.show(this.deleteModal, {class: "modal-sm"})
+  }
+
+  onConfirmDelete() {
+    this.cursosService.remove(this.cursoSelecionado.id)
+      .subscribe(
+        success => {
+          this.onRefresh();
+          this.deleteModalRef.hide();
+        },
+        error => {
+          this.modalService.showAlertDanger("Erro ao remover curso, tente novamente mais tarde");
+          this.deleteModalRef.hide();
+        }
+      )
+  }
+
+  onDeclineDelete() {
+    this.deleteModalRef.hide();
   }
 }
