@@ -1,6 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {Image} from "../model/image";
 import {UploadFileService} from "../services/upload-file.service";
+import {HttpEvent, HttpEventType} from "@angular/common/http";
 
 @Component({
   selector: 'app-upload-file',
@@ -10,8 +11,9 @@ import {UploadFileService} from "../services/upload-file.service";
 export class UploadFileComponent implements OnInit {
 
   imageBaseData: string | ArrayBuffer | null;
-  images: Array<Image> = []
-  files: Set<File>
+  images: Array<Image> = [];
+  files: Set<File>;
+  progresso  = 0;
 
 
   constructor(private uploadService: UploadFileService) {
@@ -32,6 +34,8 @@ export class UploadFileComponent implements OnInit {
       this.files.add(selectedFiles[i]);
     }
     // document.getElementById("formFileMultiple")!!.innerHTML = fileNames.join(", ")
+
+    this.progresso = 0;
   }
 
 
@@ -61,7 +65,18 @@ export class UploadFileComponent implements OnInit {
 
   onUpload() {
     if (this.files && this.files.size > 0) {
-      this.uploadService.upload(this.files, "/api/upload").subscribe(response => console.log("Upload Concluido"))
+      this.uploadService.upload(this.files, "/api/upload").subscribe((event: HttpEvent<Object>) => {
+        // HttpEventType
+        console.log(event)
+        if (event.type === HttpEventType.Response) {
+          console.log("Upload Concluido")
+        } else if (event.type === HttpEventType.UploadProgress) {
+          // @ts-ignore
+          const porcentagem = Math.round((event.loaded * 100) / event.total);
+          console.log("Progresso" + porcentagem);
+          this.progresso = porcentagem;
+        }
+      })
     }
   }
 }
