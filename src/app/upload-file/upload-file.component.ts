@@ -1,7 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {Image} from "../model/image";
 import {UploadFileService} from "../services/upload-file.service";
-import {HttpEvent, HttpEventType} from "@angular/common/http";
 import {filterResponse, uploadProgress} from "../shared/rxjs-operator";
 
 @Component({
@@ -14,7 +13,7 @@ export class UploadFileComponent implements OnInit {
   imageBaseData: string | ArrayBuffer | null;
   images: Array<Image> = [];
   files: Set<File>;
-  progresso  = 0;
+  progresso = 0;
 
 
   constructor(private uploadService: UploadFileService) {
@@ -92,5 +91,19 @@ export class UploadFileComponent implements OnInit {
           filterResponse()
         ).subscribe(response => console.log("Upload Concluido"))
     }
+  }
+
+  onDownloadPDF() {
+    this.uploadService.download("/api/downloadPDF")
+      .subscribe((response: any) => {
+        this.uploadService.handleFile(response, "relatorio.pdf")
+      });
+  }
+
+  onDownloadExcel() {
+    this.uploadService.download("/api/downloadExcel")
+      .subscribe((response: any) => {
+        this.uploadService.handleFile(response, "relatorio.xls")
+      });
   }
 }
