@@ -1,5 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {Image} from "../model/image";
+import {UploadFileService} from "../services/upload-file.service";
 
 @Component({
   selector: 'app-upload-file',
@@ -10,9 +11,10 @@ export class UploadFileComponent implements OnInit {
 
   imageBaseData: string | ArrayBuffer | null;
   images: Array<Image> = []
+  files: Set<File>
 
 
-  constructor() {
+  constructor(private uploadService: UploadFileService) {
   }
 
   ngOnInit(): void {
@@ -20,13 +22,15 @@ export class UploadFileComponent implements OnInit {
 
   onChange(event: any) {
     const selectedFiles = <FileList>event.srcElement.files;
-    this.fileToBase64(selectedFiles);
+    // this.fileToBase64(selectedFiles);
     // document.getElementById("formFileMultiple")!!.innerHTML = selectedFiles[0].name;
 
-    // let fileNames = []
-    // for (let i = 0; i < selectedFiles.length; i++) {
-    //   fileNames.push(selectedFiles[i].name)
-    // }
+    let fileNames = [];
+    this.files = new Set<File>();
+    for (let i = 0; i < selectedFiles.length; i++) {
+      fileNames.push(selectedFiles[i].name);
+      this.files.add(selectedFiles[i]);
+    }
     // document.getElementById("formFileMultiple")!!.innerHTML = fileNames.join(", ")
   }
 
@@ -41,17 +45,23 @@ export class UploadFileComponent implements OnInit {
       let file = files[i];
       let reader = new FileReader();
       reader.readAsDataURL(file);
-      reader.onload = function () {
+      reader.onload = () => {
         image.nome = file.name;
         image.type = file.type;
         image.base64 = reader.result
       };
-      reader.onerror = function (error) {
+      reader.onerror = (error) => {
         console.log('Error: ', error);
       };
       me.images.push(image);
     }
 
     console.log(this.images)
+  }
+
+  onUpload() {
+    if (this.files && this.files.size > 0) {
+      this.uploadService.upload(this.files, "/api/upload").subscribe(response => console.log("Upload Concluido"))
+    }
   }
 }
